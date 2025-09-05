@@ -1,0 +1,133 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+{
+  "name": "Nuxt4 + Laravel12 Cursor Rules",
+  "version": "1.0.0",
+  "description": "Guardrails for a Nuxt 4 (nuxt-auth-sanctum) + Laravel 12 monorepo using confirm-first and plan-before-implementation. Prefer context7 MCP for docs.",
+  "workspace": {
+    "root": ".",
+    "apps": [
+      { "name": "nuxt", "path": "nuxterapp" },
+      { "name": "laravel", "path": "laraapp" }
+    ]
+  },
+  "mcp": {
+    "preferredServers": ["context7"],
+    "docLookups": [
+      { "topic": "Nuxt 4 latest docs", "tags": ["nuxt","nitro","dir-structure"] },
+      { "topic": "nuxt-auth-sanctum docs", "tags": ["auth","sanctum","csrf"] },
+      { "topic": "Laravel 12 docs", "tags": ["laravel","sanctum","http","cors","sessions"] }
+    ],
+    "requireDocCitations": true,
+    "fallbackIfUnavailable": "Ask the user for permission before using any other source."
+  },
+  "globalRules": [
+    "Do not assume missing requirements. Always confirm first.",
+    "Before writing or modifying code, produce a short plan with affected files, endpoints, data shapes, risks, and tests. Ask: `Proceed with implementation?` and wait for explicit approval.",
+    "Only implement functionality after user approval. If approval is partial, scope strictly to the approved items.",
+    "Prioritize security, correctness, and test coverage over speed.",
+    "Use concise diffs and avoid unrelated refactors in the same change.",
+    "Prefer TypeScript (strict) for Nuxt code. Follow PSR-12 for Laravel PHP.",
+    "Use Conventional Commits (feat:, fix:, chore:, refactor:, docs:, test:).",
+    "Timezone defaults to Africa/Kampala where relevant for server-side dates.",
+    "Never hardcode secrets; use env vars and document them."
+  ],
+  "fileRules": [
+    {
+      "pattern": "**/*",
+      "rules": [
+        "Ask permission before installing/adding new dependencies.",
+        "When adding dependencies, explain why, version pin, and alternatives.",
+        "When changing infrastructure files (Nginx, PM2, systemd, CI), present a plan and request approval first."
+      ]
+    },
+    {
+      "pattern": "nuxterapp/**",
+      "rules": [
+        "Target Nuxt 4 directory structure. Prefer: app/, app/pages/, aap/components/, server/api/, server/middleware/, composables/, plugins/, assets/, public/, middleware/, error.vue, app.config.ts, nuxt.config.ts.",
+        "Auth: use nuxt-auth-sanctum to integrate with Laravel Sanctum.",
+        "Auth flow: use CSRF cookie endpoint then credential/SPA auth; store session via cookies (no localStorage for session tokens).",
+        "Runtime config via runtimeConfig (private/server) and public (client). Do not expose secrets.",
+        "Network: base URL points to the Laravel API origin; do not hardcode. Read from env at runtime.",
+        "Middleware: protect SSR routes on server first. Client middleware only complements server checks.",
+        "Types: enable strict TS, define global App types for composables, and avoid any.",
+        "Accessibility and performance: use lazy imports for pages/chunks and image optimization.",
+        "Unit/integration tests for critical composables, route middleware, and API clients."
+      ]
+    },
+    {
+      "pattern": "laraapp/**",
+      "rules": [
+        "Target Laravel 12 (PHP 8.4). Adhere to framework conventions (app/, bootstrap/, config/, database/, routes/, tests/).",
+        "Authentication: use Laravel Sanctum for SPA auth with cookie-based session. Guard 'web' for SPA; 'api' for token use-cases.",
+        "CORS: configure to allow the Nuxt origin(s) only; allow credentials; restrict methods and headers appropriately.",
+        "Sanctum Stateful Domains: include the Nuxt domain(s) and any local dev hosts.",
+        "Sessions: cookie, secure=true (in prod), same_site=lax or strict; domain aligned to app domain.",
+        "Routes: put API routes in routes/api.php with versioned prefixes (e.g., /api/v1).",
+        "Controllers: single responsibility; return JSON resources/DTOs; validate with Form Requests.",
+        "Migrations/Models: avoid breaking schema changes without a migration plan; add DB indexes where appropriate.",
+        "Testing: use Pest/PhpUnit; write tests for auth, CSRF, CORS, and key API endpoints.",
+        "Logging & errors: never leak secrets; use proper exception handlers and 422/401/403 semantics."
+      ]
+    }
+  ],
+  "approvalWorkflow": {
+    "steps": [
+      "Confirm intent and clarify constraints.",
+      "Plan: list files to touch, API contracts, data validation, auth considerations, and tests.",
+      "Wait for user approval.",
+      "Implement only the approved scope.",
+      "Provide a minimal diff and test instructions.",
+      "If new questions arise, pause and reconfirm."
+    ],
+    "requireExplicitYes": true,
+    "approvalPrompt": "Plan ready. Proceed with implementation?"
+  },
+  "authAndSecurity": {
+    "nuxtAuth": {
+      "package": "nuxt-auth-sanctum",
+      "requirements": [
+        "CSRF cookie retrieval before login.",
+        "Use cookie-based session; do not store tokens in localStorage.",
+        "Handle 401/419 gracefully with revalidation."
+      ]
+    },
+    "laravelSanctum": {
+      "guards": ["web","api"],
+      "statefulDomainsEnv": "SANCTUM_STATEFUL_DOMAINS",
+      "corsConfigFile": "config/cors.php",
+      "sessionEnvKeys": ["SESSION_DOMAIN","SESSION_DRIVER","SESSION_SECURE_COOKIE","SESSION_SAME_SITE"]
+    },
+    "envRequired": {
+      "nuxt": ["NUXT_PUBLIC_API_BASE","NUXT_PUBLIC_APP_URL"],
+      "laravel": [
+        "APP_ENV","APP_URL","APP_KEY",
+        "SANCTUM_STATEFUL_DOMAINS",
+        "SESSION_DOMAIN","SESSION_DRIVER","SESSION_SECURE_COOKIE","SESSION_SAME_SITE",
+        "CORS_ALLOWED_ORIGINS","CORS_ALLOWED_METHODS","CORS_ALLOWED_HEADERS"
+      ]
+    }
+  },
+  "codeStyle": {
+    "nuxt": {
+      "typescript": "strict",
+      "eslint": true,
+      "prettier": true
+    },
+    "laravel": {
+      "psr12": true,
+      "pint": true
+    }
+  },
+  "testing": {
+    "nuxt": ["unit composables","route middleware","API client mocks"],
+    "laravel": ["auth (login/logout/refresh)","CSRF flow","CORS preflight and credentialed requests","API resources and validation"]
+  },
+  "prompts": {
+    "preImplementation": "I will draft a short plan (files, endpoints, data shapes, security, tests). Proceed?",
+    "docLookup": "Query context7 MCP for the latest official docs (Nuxt 4, nuxt-auth-sanctum, Laravel 12). Cite results. If context7 is unavailable, ask permission before using other sources."
+  }
+}

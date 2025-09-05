@@ -7,11 +7,14 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-	"start": "node .output/server/index.mjs",
+    "start": "node .output/server/index.mjs",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.13",
     "nuxt": "^4.1.0",
+    "nuxt-auth-sanctum": "^1.2.0",
+    "tailwindcss": "^4.1.13",
     "vue": "^3.5.20",
     "vue-router": "^4.5.1"
   }

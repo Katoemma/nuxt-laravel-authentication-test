@@ -156,6 +156,7 @@ return [
     |
     */
 
+    // Configure to a shared parent domain in dev/prod (e.g., .local.test)
     'domain' => env('SESSION_DOMAIN'),
 
     /*
@@ -199,6 +200,7 @@ return [
     |
     */
 
+    // For cross-origin setups in dev, consider 'none' with secure cookies
     'same_site' => env('SESSION_SAME_SITE', 'lax'),
 
     /*
